@@ -1,7 +1,6 @@
 package com.atticuspomerantz.profile.profile_aggregator.client;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,33 +20,42 @@ public class GithubApiClient {
     }
 
     /**
-     * Fetches GitHub user details.
-     * Field mapping is already done by the response model class using Jackson annotations.
+     * Fetches GitHub user details synchronously.
      *
      * @param username GitHub username.
-     * @return A CompletableFuture containing GithubApiUserResponse.
+     * @return GithubApiUserResponse or null if the request fails.
      */
-    public CompletableFuture<GithubApiUserResponse> fetchUserDetails(String username) {
-        return webClient.get()
-                .uri("/users/{username}", username)
-                .retrieve()
-                .bodyToMono(GithubApiUserResponse.class)
-                .toFuture();
+    public GithubApiUserResponse fetchUserDetails(String username) {
+        try {
+            return webClient.get()
+                    .uri("/users/{username}", username)
+                    .retrieve()
+                    .bodyToMono(GithubApiUserResponse.class)
+                    .block(); // Synchronous call for simplicity
+        } catch (Exception ex) {
+            System.err.println("Error fetching user details: " + ex.getMessage());
+            return null;
+        }
     }
 
     /**
-     * Fetches GitHub user repositories.     
-     * Field mapping is already done by the response model class using Jackson annotations.
+     * Fetches GitHub user repositories synchronously.
      *
      * @param username GitHub username.
-     * @return A CompletableFuture containing a list of GithubApiReposResponse.
+     * @return A list of repositories or an empty list if the request fails.
      */
-    public CompletableFuture<List<GithubApiReposResponse>> fetchUserRepositories(String username) {
-        return webClient.get()
-                .uri("/users/{username}/repos", username)
-                .retrieve()
-                .bodyToMono(GithubApiReposResponse[].class)
-                .map(List::of) // Convert array to List
-                .toFuture();
+    public List<GithubApiReposResponse> fetchUserRepositories(String username) {
+        try {
+            GithubApiReposResponse[] repos = webClient.get()
+                    .uri("/users/{username}/repos", username)
+                    .retrieve()
+                    .bodyToMono(GithubApiReposResponse[].class)
+                    .block(); // Synchronous call for simplicity
+
+            return repos != null ? List.of(repos) : List.of();
+        } catch (Exception ex) {
+            System.err.println("Error fetching repositories: " + ex.getMessage());
+            return List.of();
+        }
     }
 }

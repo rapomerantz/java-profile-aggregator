@@ -20,7 +20,8 @@ A customer wants to integrate a subset of GitHub’s data into their application
     created_at: "2011-01-25 18:44:36",
     repos: [{
         name: "boysenberry-repo-1",
-        url: "https://github.com/octocat/boysenberry-repo-1" }, ...
+        url: "https://github.com/octocat/boysenberry-repo-1" }, 
+        ...
     ] 
 }
 ```
