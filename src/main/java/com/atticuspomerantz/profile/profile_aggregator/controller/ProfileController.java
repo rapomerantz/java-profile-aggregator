@@ -21,6 +21,14 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
+    /*
+     * REST endpoint to fetch the profile for a given username.
+     * 
+     * This is a simple pass-through to the `ProfileService`.
+     * It does not use an abstract `UserProfile` at this time because there is only one profile source (Github).
+     * As additional sources are added, this could be refined, or more endpoints could be added (e.g. /profile/github, /profile/linkedin, etc.).
+     * 
+     */
     @GetMapping
     public ResponseEntity<GithubUserProfile> getProfile(@RequestParam String username) {
         GithubUserProfile profile = profileService.getGithubProfile(username);
