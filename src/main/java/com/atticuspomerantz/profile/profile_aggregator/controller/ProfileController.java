@@ -5,34 +5,52 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atticuspomerantz.profile.profile_aggregator.model.GithubUserProfile;
 import com.atticuspomerantz.profile.profile_aggregator.service.ProfileService;
 
+import java.util.logging.Logger;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
+/**
+ * REST controller for retrieving GitHub user profiles.
+ */
 @RestController
 @RequestMapping("/profile")
 public class ProfileController {
-
+    private static final Logger LOGGER = Logger.getLogger(ProfileController.class.getName());
     private final ProfileService profileService;
 
     public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
     }
 
-    /*
-     * REST endpoint to fetch the profile for a given username.
-     * 
-     * This is a simple pass-through to the `ProfileService`.
-     * It does not use an abstract `UserProfile` at this time because there is only one profile source (Github).
-     * As additional sources are added, this could be refined, or more endpoints could be added (e.g. /profile/github, /profile/linkedin, etc.).
-     * 
+    /**
+     * Retrieves the GitHub profile for a given username.
+     *
+     * @param username GitHub username.
+     * @return A ResponseEntity containing the GitHubUserProfile or an appropriate error response.
      */
-    @GetMapping
+    @GetMapping("/{username}")
     public ResponseEntity<GithubUserProfile> getProfile(@RequestParam String username) {
-        GithubUserProfile profile = profileService.getGithubProfile(username);
+        if (username == null || username.trim().isEmpty()) {
+            LOGGER.info("Invalid request: username is missing or empty");
+            return ResponseEntity.badRequest().body(null); // Returns 400 BAD REQUEST
+        }
+        
+        try {
+            GithubUserProfile profile = profileService.getGithubProfile(username);
 
-        return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
+            if (profile == null) {
+                LOGGER.info("GitHub profile not found for: " + username);
+                return ResponseEntity.notFound().build(); // Returns 404 NOT FOUND
+            }
+
+            return ResponseEntity.ok(profile);
+        } catch (Exception ex) {
+            LOGGER.info("Error retrieving GitHub profile for " + username + ": " + ex.getMessage());
+            return ResponseEntity.internalServerError().build(); // Returns HTTP 500
+        }
     }
 }

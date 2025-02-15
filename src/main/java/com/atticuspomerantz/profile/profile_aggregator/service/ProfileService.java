@@ -1,6 +1,7 @@
 package com.atticuspomerantz.profile.profile_aggregator.service;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.atticuspomerantz.profile.profile_aggregator.util.CacheUtility;
 
 @Service
 public class ProfileService {
+    private static final Logger LOGGER = Logger.getLogger(ProfileService.class.getName());
     private final GithubApiClient githubApiClient;
     private final CacheUtility<GithubUserProfile> cache;
 
@@ -37,6 +39,7 @@ public class ProfileService {
         // Check cache first
         GithubUserProfile cachedProfile = cache.get(username);
         if (cachedProfile != null) {
+            LOGGER.info("Cache hit for user: " + username);
             return cachedProfile;
         }
 
@@ -46,6 +49,7 @@ public class ProfileService {
             List<GithubApiReposResponse> reposResponse = githubApiClient.fetchUserRepositories(username);
 
             if (userResponse == null) {
+                LOGGER.info("GitHub user not found: " + username);
                 return null;
             }
 
@@ -54,7 +58,7 @@ public class ProfileService {
             cache.put(username, profile);
             return profile;
         } catch (Exception ex) {
-            System.err.println("Error fetching GitHub profile: " + ex.getMessage());
+            LOGGER.info("Error fetching GitHub profile for " + username + ": " + ex.getMessage());
             return null;
         }
     }
