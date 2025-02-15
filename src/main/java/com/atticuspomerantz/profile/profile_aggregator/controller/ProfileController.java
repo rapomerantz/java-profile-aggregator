@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
@@ -33,12 +33,7 @@ public class ProfileController {
      * @return A ResponseEntity containing the GitHubUserProfile or an appropriate error response.
      */
     @GetMapping("/{username}")
-    public ResponseEntity<GithubUserProfile> getProfile(@RequestParam String username) {
-        if (username == null || username.trim().isEmpty()) {
-            LOGGER.info("Invalid request: username is missing or empty");
-            return ResponseEntity.badRequest().body(null); // Returns 400 BAD REQUEST
-        }
-        
+    public ResponseEntity<GithubUserProfile> getProfile(@PathVariable String username) {        
         try {
             GithubUserProfile profile = profileService.getGithubProfile(username);
 
