@@ -1,12 +1,14 @@
 package com.atticuspomerantz.profile.profile_aggregator.service;
 
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.atticuspomerantz.profile.profile_aggregator.client.GithubApiClient;
+import com.atticuspomerantz.profile.profile_aggregator.exception.UserNotFoundException;
 import com.atticuspomerantz.profile.profile_aggregator.model.GithubApiReposResponse;
 import com.atticuspomerantz.profile.profile_aggregator.model.GithubApiUserResponse;
 import com.atticuspomerantz.profile.profile_aggregator.model.GithubUserProfile;
@@ -15,13 +17,13 @@ import com.atticuspomerantz.profile.profile_aggregator.util.CacheUtility;
 
 @Service
 public class ProfileService {
-    private static final Logger LOGGER = Logger.getLogger(ProfileService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileService.class);
     private final GithubApiClient githubApiClient;
     private final CacheUtility<GithubUserProfile> cache;
 
     /*
-     * Additional clients could be added here in the future. 
-     * They could be built in a more dynamic (and more complex) way, but for now, this is sufficient.
+     * Additional clients could be added here (e.g. Gitlab). 
+     * They could be composed in a more dynamic way, but for now, this is sufficient.
      */
     public ProfileService(GithubApiClient githubApiClient, CacheUtility<GithubUserProfile> cache) {
         this.githubApiClient = githubApiClient;
@@ -39,9 +41,10 @@ public class ProfileService {
         // Check cache first
         GithubUserProfile cachedProfile = cache.get(username);
         if (cachedProfile != null) {
-            LOGGER.info("Cache hit for user: " + username);
+            LOGGER.info("Cache hit for user: {}", username);
             return cachedProfile;
         }
+        LOGGER.info("Cache miss for user: {}", username);
 
         try {
             // Fetch user details and repositories synchronously
@@ -50,7 +53,7 @@ public class ProfileService {
 
             if (userResponse == null) {
                 LOGGER.info("GitHub user not found: " + username);
-                return null;
+                throw new UserNotFoundException(username);
             }
 
             // Build and cache the final profile
@@ -63,25 +66,28 @@ public class ProfileService {
         }
     }
 
-    /** Converts API response objects into the final GithubUserProfile */
-    private GithubUserProfile buildGithubUserProfile(
-            GithubApiUserResponse userResponse,
-            List<GithubApiReposResponse> reposResponse) {
-
+    /**
+     * Builds a GithubUserProfile object from the API responses.
+     * 
+     * @param userResponse
+     * @param reposResponse
+     * @return
+     */
+    private GithubUserProfile buildGithubUserProfile(GithubApiUserResponse userResponse, List<GithubApiReposResponse> reposResponse) {
         return GithubUserProfile.builder()
-                .user_name(userResponse.getUser_name())
-                .display_name(userResponse.getDisplay_name())
+                .userName(userResponse.getUserName())
+                .displayName(userResponse.getDisplayName())
                 .avatar(userResponse.getAvatar())
-                .geo_location(userResponse.getGeo_location())
+                .geoLocation(userResponse.getGeoLocation())
                 .email(userResponse.getEmail())
                 .url(userResponse.getUrl())
-                .created_at(userResponse.getCreated_at())
+                .createdAt(userResponse.getCreatedAt())
                 .repos(reposResponse.stream()
-                        .map(repo -> GithubUserRepo.builder()
-                                .name(repo.getName())
-                                .url(repo.getUrl())
-                                .build())
-                        .collect(Collectors.toList()))
+                    .map(repo -> GithubUserRepo.builder()
+                        .name(repo.getName())
+                        .url(repo.getUrl())
+                        .build())
+                    .toList())
                 .build();
     }
 }

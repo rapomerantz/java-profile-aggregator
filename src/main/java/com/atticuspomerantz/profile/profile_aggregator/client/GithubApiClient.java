@@ -3,8 +3,9 @@ package com.atticuspomerantz.profile.profile_aggregator.client;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -17,7 +18,7 @@ import com.atticuspomerantz.profile.profile_aggregator.util.ApiConstants;
 
 @Service
 public class GithubApiClient {
-    private static final Logger LOGGER = Logger.getLogger(GithubApiClient.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GithubApiClient.class);
     private final Duration timeoutDuration;
     private final WebClient webClient;
 
@@ -35,7 +36,7 @@ public class GithubApiClient {
     public GithubApiUserResponse fetchUserDetails(String username) {
         try {
             GithubApiUserResponse userResponse = webClient.get()
-                    .uri("/users/{username}", username)
+                    .uri(ApiConstants.GITHUB_USER_ENDPOINT, username)
                     .retrieve()
                     .bodyToMono(GithubApiUserResponse.class)
                     .block(timeoutDuration);
@@ -45,9 +46,9 @@ public class GithubApiClient {
             }
             return userResponse;
         } catch (WebClientResponseException ex) {
-            LOGGER.warning("GitHub API error " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString());
+            LOGGER.warn("GitHub API error {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
         } catch (Exception ex) {
-            LOGGER.warning("Unexpected error fetching user details for " + username + ": " + ex.getMessage());
+            LOGGER.warn("Unexpected error fetching user details for {}: {} ", username, ex.getMessage());
         }
         return null;
     }
@@ -61,7 +62,7 @@ public class GithubApiClient {
     public List<GithubApiReposResponse> fetchUserRepositories(String username) {
         try {
             GithubApiReposResponse[] repos = webClient.get()
-                    .uri("/users/{username}/repos", username)
+                    .uri(ApiConstants.GITHUB_REPOS_ENDPOINT, username)
                     .retrieve()
                     .bodyToMono(GithubApiReposResponse[].class)
                     .block(timeoutDuration);
@@ -71,9 +72,9 @@ public class GithubApiClient {
             }
             return List.of(repos);
         } catch (WebClientResponseException ex) {
-            LOGGER.warning("GitHub API error " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString());
+            LOGGER.warn("GitHub API error {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
         } catch (Exception ex) {
-            LOGGER.warning("Unexpected error fetching repositories for " + username + ": " + ex.getMessage());
+            LOGGER.warn("Unexpected error fetching user details for {}: {} ", username, ex.getMessage());
         }
         return new ArrayList<>();
     }

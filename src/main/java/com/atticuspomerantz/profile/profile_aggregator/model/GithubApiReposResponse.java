@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
-/*
- * This class is a model for the response from the GitHub API when fetching a user's repos.
- * It uses Jackson annotations to map the JSON response to the fields in the acceptance criteria.
+/**
+ * Represents a repository from the GitHub API response.
+ * Uses Jackson annotations to map JSON fields correctly.
  */
 @Data
 public class GithubApiReposResponse {
-    private String name; //name
 
-    // incoming JSON field name: html_url
-    // resulting JSON field name: url
+    @JsonProperty("name")
+    private String name;
+
     @JsonProperty("html_url")
-    private String url; //url
+    private String url;
 }

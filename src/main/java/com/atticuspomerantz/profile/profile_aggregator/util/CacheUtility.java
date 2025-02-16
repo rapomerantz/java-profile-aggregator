@@ -1,32 +1,35 @@
 package com.atticuspomerantz.profile.profile_aggregator.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.atticuspomerantz.profile.profile_aggregator.config.CacheConfig;
 
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.logging.Logger;
 
 /**
  * Generic in-memory cache utility with TTL-based expiration.
  * Can cache any object type (GitHub profiles, GitLab profiles, etc.).
  * 
+ * This is an extremely simple cache implementation and doesn't handle cache eviction or memory management
+ * 
  * Could be replaced in the future with a more robust caching solution (e.g., Redis).
  */
 @Component
 public class CacheUtility<T> {
-    private static final Logger LOGGER = Logger.getLogger(CacheUtility.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheUtility.class);
     private final Map<String, CachedEntry<T>> cache = new ConcurrentHashMap<>();
     private final long ttlMillis;
 
     public CacheUtility(CacheConfig cacheConfig) {
         this.ttlMillis = cacheConfig.getTtlMillis();
-        LOGGER.info("Cache TTL set to " + ttlMillis / 1000 + " seconds");
+        LOGGER.info("Cache TTL set to {} seconds", ttlMillis / 1000);
     }
 
     /**
-     * Retrieves a cached entry if it exists and is not expired.
+     * Retrieves a cached entry
      *
      * @param key Cache key (e.g., username).
      * @return Cached object or null if not found/expired.
