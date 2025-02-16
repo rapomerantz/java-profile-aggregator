@@ -1,10 +1,10 @@
 # Spring Boot Profile Aggregator
 This application is a Spring Boot REST microservice that queries and aggregates user profile data from external services (currently Github).
-It exposes a /profile/{username} API endpoint that fetches, transforms, and caches profile data.
+It exposes a `/profile/{username}` API endpoint that fetches, transforms, and caches profile data.
 
 Its purpose is to demonstrate sensible, modern software architecture decisions, while remaining open to future extension.
 
-Above all, it applies my one-and-only engineering dogma: When in down, **keep it simple stupid**.
+Above all, it applies my one-and-only engineering dogma: When in doubt, **keep it simple stupid**.
 
 ## Key Features
 - Fetches Github user profile data and repositories
