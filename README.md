@@ -9,7 +9,7 @@ Above all, it applies my one-and-only engineering dogma: When in doubt, **keep i
 ## Key Features
 - Fetches Github user profile data and repositories
 - Aggregates and formats the response as JSON
-- Uses in-memory caching (5 min TTL) to reduce API rate limit issues
+- Uses in-memory caching to address API rate limit issues
 - Designed for simplicity, maintanability, and future extension.
 
 ## Example Response
@@ -62,6 +62,7 @@ By default, the service runs on `http://localhost:8080`
 curl -X GET "http://localhost:8080/profile/octocat"
 ```
 - Expected response: Returns GitHub user details and repositories (example above)
+- If a username is not provided (e.g. `/profile/`): returns `400` (bad request)
 - If the user is not found: Returns `404` 
 - If the request fails: returns `500` 
 
@@ -75,7 +76,26 @@ curl -X GET "http://localhost:8080/profile/octocat"
 ./mvnw failsafe:integration-test
 ```
 
+## Architecture Decisions
+1. Overall service structure and components
+    - A standard controller/service/data-layer was used to isolate business logic from API client connections, endpoint details, and data mapping.
+    - A very simple in-memory cache was created using the `ConcurrentHashMap` data structure. In a real-world application, this would very likely be handled by another technology (e.g. Redis).
+    - Because the Github API didn't require connection authorization, none was implemented. If it were required, it would have been handled in the `GithubAPIClient` class
+1. Where to handle the mapping? 
+    - A small amount of mapping was required to transform the Github response into the desired format. I made the decision to use Jackson `@JsonProperty` annotations in the models to do this. This allowed me to use `camelCase` variable names in my Java code, while still delivering the desired JSON keys. 
+    - This decision also allowed me to seperate the concerns of key mapping away from the service layer (it's not really business logic). 
+    - As a result, some amount of "spring magic" is happening in the background here.
+    - Alternatively, more verbose mapping could have been done in the service.
+1. How best to instantiate the Github client?
+    - I thought about using a more complex Factory Pattern to create API clients (perhaps providing the factory with connection details dynamically on instantiation instead of hard coding them).
+    - I also considered having an abstract `ApiClient` class that had shared logic in it. This ended up feeling like more complexity than necessary for a simple project with one API cleint. 
+    - However, if we know we were going to have dozens of different clients, one or both of these approaches may have been worthwhile. 
+1. How much abstraction is necessary?
+    - I thought about having a `UserProfile` base abstract class, with `GithubUserProfile` extending it. Again, this might be useful if the project were more complex, but I decided it wasn't necessary for now. 
+    - This would have enabled me to return a more generic `UserProfile` object in the controller, instead of specifically hardcoding in a `GithubUserProfile`
+    - Similarly, there could be an abstract ApiClient, perhaps dynamically instantiated with connection details. This would have made my service more flexible, but more complex. 
 
-### Architecture Diagram 
+
+## Architecture Diagram 
 
 ![Architecture](assets/profile_utility_architecture.jpg)

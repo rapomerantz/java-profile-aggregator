@@ -24,13 +24,12 @@ class ProfileControllerIT {
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getUserName()).isEqualTo("octocat");
-
         assertThat(response.getBody().getDisplayName()).isEqualTo("The Octocat");
         assertThat(response.getBody().getAvatar()).isEqualTo("https://avatars.githubusercontent.com/u/583231?v=4");
         assertThat(response.getBody().getGeoLocation()).isEqualTo("San Francisco");
         assertThat(response.getBody().getEmail()).isNull();
         assertThat(response.getBody().getUrl()).isEqualTo("https://github.com/octocat");
-        assertThat(response.getBody().getCreatedAt()).isNotNull();
+        assertThat(response.getBody().getCreatedAt()).isEqualTo("2011-01-25T18:44:36");
         assertThat(response.getBody().getRepos()).isNotEmpty();
         assertThat(response.getBody().getRepos().get(0).getName()).isEqualTo("boysenberry-repo-1");
         assertThat(response.getBody().getRepos().get(0).getUrl()).isEqualTo("https://github.com/octocat/boysenberry-repo-1");
