@@ -63,7 +63,13 @@
 			<artifactId>netty-resolver-dns-native-macos</artifactId>
 			<version>4.1.100.Final</version>
 			<classifier>osx-aarch_64</classifier> 
-		</dependency>			
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.24.2</version>  <!-- Use the latest version -->
+			<scope>test</scope>
+		</dependency>					
 
 	</dependencies>
 

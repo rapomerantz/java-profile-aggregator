@@ -2,6 +2,7 @@ package com.atticuspomerantz.profile.profile_aggregator.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  * Uses Jackson annotations to map JSON fields correctly.
  */
 @Data
+@Builder
 public class GithubApiReposResponse {
 
     @JsonProperty("name")

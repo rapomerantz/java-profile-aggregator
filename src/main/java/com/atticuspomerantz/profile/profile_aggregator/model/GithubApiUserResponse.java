@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
  * It uses Jackson annotations to map the JSON fields correctly.
  */
 @Data
+@Builder
 public class GithubApiUserResponse {
 
     @JsonProperty("login")

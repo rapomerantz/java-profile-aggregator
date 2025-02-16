@@ -66,17 +66,13 @@ curl -X GET "http://localhost:8080/profile/octocat"
 - If the request fails: returns `500` 
 
 ## Running Tests
-1. Run all tests
+1. Run unit tests
 ```
 ./mvnw test
 ```
-1. Run unit tests only
+1. Run integration tests
 ```
-./mvnw -Dtest=ProfileServiceTest test
-```
-1. Run all tests
-```
-./mvnw -Dtest=ProfileControllerTest test 
+./mvnw failsafe:integration-test
 ```
 
 
