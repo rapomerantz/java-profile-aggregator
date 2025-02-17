@@ -3,6 +3,7 @@ package com.atticuspomerantz.profile.profile_aggregator.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Builder;
@@ -31,10 +32,15 @@ public class GithubUserProfile {
     @JsonProperty("email")
     private final String email;
 
+    private String url; // Stored normally without extra space
+
     @JsonProperty("url")
-    private final String url;
+    public String getFormattedUrl() {
+        return url + " "; // Adds space only in the JSON response (per requirements doc)
+    }
 
     @JsonProperty("created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") //formats on the way out only
     private final LocalDateTime createdAt;
 
     @JsonProperty("repos")

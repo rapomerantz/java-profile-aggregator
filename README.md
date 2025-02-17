@@ -21,14 +21,15 @@ Calling `/profile/octocat` returns:
 {
     user_name: "octocat",
     display_name: "The Octocat",
-    avatar: "https://avatars3.githubusercontent.com/u/583231?v=4", geo_location: "San Francisco",
+    avatar: "https://avatars3.githubusercontent.com/u/583231?v=4", 
+    geo_location: "San Francisco",
     email: null,
-    url: "https://github.com/octocat ",
-    created_at: "2011-01-25 18:44:36",
+    url: "https://github.com/octocat ", //<--trailing space included
+    created_at: "2011-01-25 18:44:36", //<-- string w/o timezone in yyyy-MM-dd HH:mm:ss>
     repos: [{
         name: "boysenberry-repo-1",
-        url: "https://github.com/octocat/boysenberry-repo-1" }, 
-       // ...
+        url: "https://github.com/octocat/boysenberry-repo-1" 
+        }, //...
     ] 
 }
 ```
@@ -71,7 +72,7 @@ curl -X GET "http://localhost:8080/profile/octocat"
 ```
 ./mvnw test
 ```
-1. Run integration tests
+1. Run integration tests (issue with `./mvnw verify`, so using failsafe for now)
 ```
 ./mvnw failsafe:integration-test
 ```
@@ -83,8 +84,8 @@ curl -X GET "http://localhost:8080/profile/octocat"
     - Because the Github API didn't require connection authorization, none was implemented. If it were required, it would have been handled in the `GithubAPIClient` class
 1. Where to handle the mapping? 
     - A small amount of mapping was required to transform the Github response into the desired format. I made the decision to use Jackson `@JsonProperty` annotations in the models to do this. This allowed me to use `camelCase` variable names in my Java code, while still delivering the desired JSON keys. 
-    - This decision also allowed me to seperate the concerns of key mapping away from the service layer (it's not really business logic). 
-    - As a result, some amount of "spring magic" is happening in the background here.
+    - This decision also allowed me to seperate the concerns of key mapping away from the service layer (it's not really business logic, it's presentation logic). 
+    - As a result, some amount of "spring magic" is happening in the background here, especially on the way out.
     - Alternatively, more verbose mapping could have been done in the service.
 1. How best to instantiate the Github client?
     - I thought about using a more complex Factory Pattern to create API clients (perhaps providing the factory with connection details dynamically on instantiation instead of hard coding them).

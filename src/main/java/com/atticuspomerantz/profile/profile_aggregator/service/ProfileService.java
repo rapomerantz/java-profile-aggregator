@@ -46,20 +46,20 @@ public class ProfileService {
             return cachedProfile;
         }
         LOGGER.info("Cache miss for user: {}", username);
-        // Fetch user details
+        // Fetch user details. Don't continue to repos if no user found.
         GithubApiUserResponse userResponse = githubApiClient.fetchUserDetails(username);
         if (userResponse == null) {
             LOGGER.info("GitHub user '{}' not found.", username);
             throw new UserNotFoundException(username);
         }
 
-        // Fetch repositories (handling potential failure)
+        // Fetch repositories 
         List<GithubApiReposResponse> reposResponse;
         try {
             reposResponse = githubApiClient.fetchUserRepositories(username);
         } catch (Exception e) {
             LOGGER.warn("Failed to fetch repos for user '{}': {}", username, e.getMessage());
-            reposResponse = List.of();  // ✅ Handle failure gracefully by returning an empty list
+            reposResponse = List.of();  // Handle failure gracefully by returning an empty list
         }
 
         // Build and cache the final profile
@@ -74,7 +74,7 @@ public class ProfileService {
      * 
      * @param userResponse
      * @param reposResponse
-     * @return
+     * @return GithubUserProfile
      */
     private GithubUserProfile buildGithubUserProfile(GithubApiUserResponse userResponse, List<GithubApiReposResponse> reposResponse) {
         return GithubUserProfile.builder()
